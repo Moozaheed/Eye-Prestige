@@ -1,0 +1,8 @@
+[
+  {
+    "id": "super-admin-1",
+    "email": "admin@eyeprestige.com",
+    "passwordHash": "6ff9c8f14316e69993e686e58f485713106acc26f9986bb3bb2ee7721cb5b4c3",
+    "role": "super_admin"
+  }
+]

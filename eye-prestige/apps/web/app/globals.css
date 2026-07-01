@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+@layer components {
+  .display {
+    @apply font-serif uppercase tracking-tight;
+    font-optical-sizing: auto;
+  }
+
+  .eyebrow {
+    @apply text-[10.5px] font-semibold uppercase text-mute;
+    letter-spacing: 0.22em;
+  }
+
+  .product-img-filter {
+    filter: none;
+  }
+
+  .hero-scrim {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.78) 0%,
+      rgba(0, 0, 0, 0.32) 38%,
+      rgba(0, 0, 0, 0) 62%
+    );
+  }
+
+  .tile-scrim {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.82) 0%,
+      rgba(0, 0, 0, 0.05) 58%
+    );
+  }
+
+  .frosted {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+  }
+
+  .sheet-backdrop {
+    background: rgba(17, 17, 16, 0.42);
+  }
+}

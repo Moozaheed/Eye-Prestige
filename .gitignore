@@ -1,0 +1,10 @@
+# Next.js build and dependencies
+node_modules/
+.next/
+out/
+build/
+.env*.local
+.vercel
+*.log
+.DS_Store
+dist/
