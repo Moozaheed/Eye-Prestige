@@ -23,6 +23,7 @@ export interface Product {
   featured: boolean;
   stock: number;
   disabled?: boolean;
+  featuredOrder?: number;
 }
 
 export interface SelectedLens {

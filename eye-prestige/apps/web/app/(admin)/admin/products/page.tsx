@@ -55,6 +55,7 @@ export default function AdminProductsPage() {
   const [prescriptionRequired, setPrescriptionRequired] = useState(false);
   const [featured, setFeatured] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [featuredOrder, setFeaturedOrder] = useState<number | "">("");
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -89,7 +90,6 @@ export default function AdminProductsPage() {
       return next;
     });
   };
-
   const openAddModal = () => {
     setEditingProduct(null);
     setName("");
@@ -103,6 +103,7 @@ export default function AdminProductsPage() {
     setPrescriptionRequired(false);
     setFeatured(false);
     setDisabled(false);
+    setFeaturedOrder("");
     setModalOpen(true);
   };
 
@@ -124,10 +125,9 @@ export default function AdminProductsPage() {
     setPrescriptionRequired(p.prescriptionRequired);
     setFeatured(p.featured);
     setDisabled(p.disabled || false);
+    setFeaturedOrder(p.featuredOrder || "");
     setModalOpen(true);
-  };
-
-  const handleSave = (e: React.FormEvent) => {
+  };  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const filteredImages = images.filter((img) => img.trim() !== "");
@@ -146,6 +146,7 @@ export default function AdminProductsPage() {
       prescriptionRequired,
       featured,
       disabled,
+      featuredOrder: featuredOrder !== "" ? Number(featuredOrder) : undefined,
     };
 
     if (editingProduct) {
@@ -512,8 +513,19 @@ export default function AdminProductsPage() {
                     onChange={(e) => setDisabled(e.target.checked)}
                     className="rounded border-neutral-800 bg-neutral-900 text-white focus:ring-0 focus:ring-offset-0"
                   />
-                  <span className="text-red-400 font-semibold">Disable Product (Hide from storefront)</span>
                 </label>
+              </div>
+
+              <div className="space-y-1 border-t border-neutral-800 pt-3.5">
+                <label className="text-[10.5px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">Home Featured Order (Serial Number)</label>
+                <input
+                  type="number"
+                  value={featuredOrder}
+                  onChange={(e) => setFeaturedOrder(e.target.value === "" ? "" : Number(e.target.value))}
+                  placeholder="e.g. 1 (Leave blank for random)"
+                  className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-white outline-none focus:border-neutral-700"
+                />
+                <p className="text-[9.5px] text-neutral-500 leading-normal mt-1">Products with a serial number will show up first in their category row section (e.g. 1 is first, 2 is second). Non-featured products will be randomized afterwards.</p>
               </div>
 
               {/* Actions */}

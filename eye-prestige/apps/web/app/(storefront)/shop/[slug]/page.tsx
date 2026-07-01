@@ -599,17 +599,7 @@ export default function ProductDetailPage() {
             </Link>
           </div>
 
-          <div className="relative group/carousel">
-            {/* Left Arrow Button */}
-            <button
-              type="button"
-              onClick={() => handleRelatedScroll("left")}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-white/95 border border-hairline shadow-md flex items-center justify-center text-ink hover:bg-white active:scale-95 transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft size={16} strokeWidth={2} />
-            </button>
-
+          <div className="relative">
             {/* Scroll Track container */}
             <div
               ref={relatedScrollRef}
@@ -620,16 +610,6 @@ export default function ProductDetailPage() {
                 <ProductCard key={p.id} product={p} variant="carousel" />
               ))}
             </div>
-
-            {/* Right Arrow Button */}
-            <button
-              type="button"
-              onClick={() => handleRelatedScroll("right")}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-white/95 border border-hairline shadow-md flex items-center justify-center text-ink hover:bg-white active:scale-95 transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
-              aria-label="Scroll right"
-            >
-              <ChevronRight size={16} strokeWidth={2} />
-            </button>
           </div>
         </section>
       )}

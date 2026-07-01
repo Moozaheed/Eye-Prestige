@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Plus, Trash2, Edit2, Check, RefreshCw, Upload, Layout, Columns, Film, Eye, Megaphone } from "lucide-react";
 import { useConfigStore, CategoryItem, HeroSlide } from "@/lib/config-store";
+import { useProductStore } from "@/lib/product-store";
 
 export default function AdminContentPage() {
   const [mounted, setMounted] = useState(false);
@@ -47,6 +48,10 @@ export default function AdminContentPage() {
 
   const [activeTab, setActiveTab] = useState<"hero" | "categories" | "shapes" | "layout" | "marketing">("hero");
   const [successMsg, setSuccessMsg] = useState("");
+
+  const products = useProductStore((s) => s.products);
+  const updateProduct = useProductStore((s) => s.updateProduct);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   // Category modal / form states
   const [newCatKey, setNewCatKey] = useState("");
@@ -613,61 +618,117 @@ export default function AdminContentPage() {
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Homepage Category Grid Sections</h3>
               <p className="text-[11px] text-neutral-500">Configure which category listing grids are shown on the home page, and rearrange their render order.</p>
               
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {categories.map((cat, idx) => {
                   const isActive = homeSections.includes(cat.key);
                   const activeIdx = homeSections.indexOf(cat.key);
+                  const isExpanded = expandedCategory === cat.key;
+                  const catProducts = products.filter((p) => p.category === cat.key && !p.disabled);
                   
                   return (
                     <div
                       key={cat.key}
-                      className={`flex items-center gap-4 p-3 rounded-lg border transition-all ${
+                      className={`flex flex-col rounded-lg border transition-all ${
                         isActive
                           ? "bg-neutral-900/60 border-neutral-800"
                           : "bg-neutral-950 border-neutral-900 opacity-60"
                       }`}
                     >
-                      {/* Checkbox toggle */}
-                      <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => handleToggleHomeSection(cat.key)}
-                        className="rounded border-neutral-800 bg-neutral-950 text-white focus:ring-0 focus:ring-offset-0 cursor-pointer h-4 w-4"
-                      />
+                      {/* Main row */}
+                      <div className="flex items-center gap-4 p-3">
+                        {/* Checkbox toggle */}
+                        <input
+                          type="checkbox"
+                          checked={isActive}
+                          onChange={() => handleToggleHomeSection(cat.key)}
+                          className="rounded border-neutral-800 bg-neutral-950 text-white focus:ring-0 focus:ring-offset-0 cursor-pointer h-4 w-4"
+                        />
 
-                      {/* Info thumbnail */}
-                      <div className="relative h-10 w-10 rounded overflow-hidden border border-neutral-800 bg-neutral-900">
-                        <Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="40px" />
+                        {/* Info thumbnail */}
+                        <div className="relative h-10 w-10 rounded overflow-hidden border border-neutral-800 bg-neutral-900">
+                          <Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="40px" />
+                        </div>
+
+                        {/* Meta */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-white truncate">{cat.name}</p>
+                          <p className="text-[10px] text-neutral-500 font-mono truncate">{cat.key}</p>
+                        </div>
+
+                        {/* Manage Featured Products Button */}
+                        {isActive && catProducts.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedCategory(isExpanded ? null : cat.key)}
+                            className="px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded border border-neutral-850 bg-neutral-950 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors select-none"
+                          >
+                            {isExpanded ? "Hide Products" : "Manage Products"}
+                          </button>
+                        )}
+
+                        {/* Rearrange order up/down arrows */}
+                        {isActive && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              disabled={activeIdx === 0}
+                              onClick={() => handleMoveHomeSection(activeIdx, "up")}
+                              className="p-1 text-neutral-500 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:pointer-events-none rounded transition-colors"
+                              title="Move section up"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              disabled={activeIdx === homeSections.length - 1}
+                              onClick={() => handleMoveHomeSection(activeIdx, "down")}
+                              className="p-1 text-neutral-500 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:pointer-events-none rounded transition-colors"
+                              title="Move section down"
+                            >
+                              ▼
+                            </button>
+                            <span className="text-[10px] text-neutral-400 font-bold ml-1 w-4 text-center">
+                              #{activeIdx + 1}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Meta */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white truncate">{cat.name}</p>
-                        <p className="text-[10px] text-neutral-500 font-mono truncate">{cat.key}</p>
-                      </div>
-
-                      {/* Rearrange order up/down arrows */}
-                      {isActive && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            disabled={activeIdx === 0}
-                            onClick={() => handleMoveHomeSection(activeIdx, "up")}
-                            className="p-1 text-neutral-500 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:pointer-events-none rounded transition-colors"
-                            title="Move section up"
-                          >
-                            ▲
-                          </button>
-                          <button
-                            disabled={activeIdx === homeSections.length - 1}
-                            onClick={() => handleMoveHomeSection(activeIdx, "down")}
-                            className="p-1 text-neutral-500 hover:text-white hover:bg-neutral-800 disabled:opacity-30 disabled:pointer-events-none rounded transition-colors"
-                            title="Move section down"
-                          >
-                            ▼
-                          </button>
-                          <span className="text-[10px] text-neutral-400 font-bold ml-1 w-4 text-center">
-                            #{activeIdx + 1}
-                          </span>
+                      {/* Expanded Products Area */}
+                      {isActive && isExpanded && catProducts.length > 0 && (
+                        <div className="border-t border-neutral-800 bg-neutral-950/80 p-3 rounded-b-lg space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                          <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Set Featured Products & Serial Order</p>
+                          <div className="space-y-1.5">
+                            {catProducts.map((prod) => (
+                              <div key={prod.id} className="flex items-center justify-between gap-3 py-1.5 border-b border-neutral-900 last:border-0">
+                                <div className="flex items-center gap-2 truncate">
+                                  {prod.images?.[0] && (
+                                    <div className="relative h-5 w-5 rounded overflow-hidden border border-neutral-850 bg-neutral-900 flex-none">
+                                      <Image src={prod.images[0]} alt={prod.name} fill className="object-cover" sizes="20px" />
+                                    </div>
+                                  )}
+                                  <span className="text-[11px] text-neutral-300 truncate">{prod.name}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 flex-none">
+                                  <span className="text-[9px] text-neutral-500 font-mono">Order #</span>
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    value={prod.featuredOrder || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value === "" ? "" : Number(e.target.value);
+                                      updateProduct(prod.id, { featuredOrder: val === "" ? undefined : val });
+                                      if (val !== "") {
+                                        triggerSuccess(`Set "${prod.name}" featured order to #${val}`);
+                                      } else {
+                                        triggerSuccess(`Removed featured order for "${prod.name}"`);
+                                      }
+                                    }}
+                                    placeholder="-"
+                                    className="w-12 bg-neutral-900 border border-neutral-800 rounded px-1.5 py-0.5 text-center text-[10px] text-white outline-none focus:border-neutral-700 font-bold"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
