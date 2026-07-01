@@ -52,6 +52,7 @@ export default function AdminContentPage() {
   const products = useProductStore((s) => s.products);
   const updateProduct = useProductStore((s) => s.updateProduct);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [cmsProductSearch, setCmsProductSearch] = useState("");
 
   // Category modal / form states
   const [newCatKey, setNewCatKey] = useState("");
@@ -180,6 +181,30 @@ export default function AdminContentPage() {
 
     setHomeSections(list);
     triggerSuccess("Section order rearranged.");
+  };
+
+  const handleReorderFeaturedProduct = (categoryKey: string, prodId: string, direction: "up" | "down") => {
+    const catProds = products.filter((p) => p.category === categoryKey && !p.disabled);
+    const featured = catProds
+      .filter((p) => typeof p.featuredOrder === "number" && !isNaN(p.featuredOrder))
+      .sort((a, b) => (a.featuredOrder || 0) - (b.featuredOrder || 0));
+
+    const idx = featured.findIndex((p) => p.id === prodId);
+    if (idx === -1) return;
+
+    if (direction === "up" && idx > 0) {
+      const prevProd = featured[idx - 1];
+      const temp = prevProd.featuredOrder;
+      updateProduct(prevProd.id, { featuredOrder: featured[idx].featuredOrder });
+      updateProduct(prodId, { featuredOrder: temp });
+      triggerSuccess(`Moved "${featured[idx].name}" up`);
+    } else if (direction === "down" && idx < featured.length - 1) {
+      const nextProd = featured[idx + 1];
+      const temp = nextProd.featuredOrder;
+      updateProduct(nextProd.id, { featuredOrder: featured[idx].featuredOrder });
+      updateProduct(prodId, { featuredOrder: temp });
+      triggerSuccess(`Moved "${featured[idx].name}" down`);
+    }
   };
 
   if (!mounted) {
@@ -693,44 +718,120 @@ export default function AdminContentPage() {
                       </div>
 
                       {/* Expanded Products Area */}
-                      {isActive && isExpanded && catProducts.length > 0 && (
-                        <div className="border-t border-neutral-800 bg-neutral-950/80 p-3 rounded-b-lg space-y-2 max-h-60 overflow-y-auto no-scrollbar">
-                          <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Set Featured Products & Serial Order</p>
-                          <div className="space-y-1.5">
-                            {catProducts.map((prod) => (
-                              <div key={prod.id} className="flex items-center justify-between gap-3 py-1.5 border-b border-neutral-900 last:border-0">
-                                <div className="flex items-center gap-2 truncate">
-                                  {prod.images?.[0] && (
-                                    <div className="relative h-5 w-5 rounded overflow-hidden border border-neutral-850 bg-neutral-900 flex-none">
-                                      <Image src={prod.images[0]} alt={prod.name} fill className="object-cover" sizes="20px" />
+                      {isActive && isExpanded && catProducts.length > 0 && (() => {
+                        const searched = catProducts.filter((p) =>
+                          p.name.toLowerCase().includes(cmsProductSearch.toLowerCase())
+                        );
+                        const featuredProds = searched
+                          .filter((p) => typeof p.featuredOrder === "number" && !isNaN(p.featuredOrder))
+                          .sort((a, b) => (a.featuredOrder || 0) - (b.featuredOrder || 0));
+                        const nonFeaturedProds = searched.filter(
+                          (p) => typeof p.featuredOrder !== "number" || isNaN(p.featuredOrder)
+                        );
+                        const finalCatProductsList = [...featuredProds, ...nonFeaturedProds];
+
+                        return (
+                          <div className="border-t border-neutral-800 bg-neutral-950/80 p-3 rounded-b-lg space-y-2 max-h-[320px] overflow-y-auto no-scrollbar">
+                            <div className="flex items-center justify-between gap-2 border-b border-neutral-900 pb-2 mb-2">
+                              <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Set Featured Products & Serial Order</p>
+                              {cmsProductSearch && (
+                                <span className="text-[9px] text-neutral-500 font-mono">Found {searched.length}</span>
+                              )}
+                            </div>
+
+                            {/* Search bar inside the category expanded view */}
+                            <div className="relative mb-2.5">
+                              <input
+                                type="text"
+                                value={cmsProductSearch}
+                                onChange={(e) => setCmsProductSearch(e.target.value)}
+                                placeholder="Search products in this category..."
+                                className="w-full bg-neutral-900 border border-neutral-850 rounded px-2.5 py-1.5 text-[10.5px] text-white outline-none focus:border-neutral-750"
+                              />
+                              {cmsProductSearch && (
+                                <button
+                                  type="button"
+                                  onClick={() => setCmsProductSearch("")}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full hover:bg-neutral-800"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Product List */}
+                            <div className="space-y-1.5">
+                              {finalCatProductsList.length === 0 ? (
+                                <p className="text-center py-4 text-[10px] text-neutral-600">No products found matching "{cmsProductSearch}"</p>
+                              ) : (
+                                finalCatProductsList.map((prod) => {
+                                  const isFeatured = typeof prod.featuredOrder === "number" && !isNaN(prod.featuredOrder);
+                                  const featIdx = isFeatured ? featuredProds.findIndex((p) => p.id === prod.id) : -1;
+
+                                  return (
+                                    <div key={prod.id} className="flex items-center justify-between gap-3 py-1.5 border-b border-neutral-900 last:border-0">
+                                      <div className="flex items-center gap-2 truncate">
+                                        {prod.images?.[0] && (
+                                          <div className="relative h-5 w-5 rounded overflow-hidden border border-neutral-850 bg-neutral-900 flex-none">
+                                            <Image src={prod.images[0]} alt={prod.name} fill className="object-cover" sizes="20px" />
+                                          </div>
+                                        )}
+                                        <span className="text-[11px] text-neutral-300 truncate">{prod.name}</span>
+                                      </div>
+
+                                      <div className="flex items-center gap-2.5 flex-none">
+                                        {/* Serial Reorder Buttons (▲ and ▼) for quick reordering */}
+                                        {isFeatured && (
+                                          <div className="flex items-center gap-0.5">
+                                            <button
+                                              type="button"
+                                              disabled={featIdx === 0}
+                                              onClick={() => handleReorderFeaturedProduct(cat.key, prod.id, "up")}
+                                              className="p-0.5 text-[9px] text-neutral-500 hover:text-white hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors"
+                                              title="Move up in order"
+                                            >
+                                              ▲
+                                            </button>
+                                            <button
+                                              type="button"
+                                              disabled={featIdx === featuredProds.length - 1}
+                                              onClick={() => handleReorderFeaturedProduct(cat.key, prod.id, "down")}
+                                              className="p-0.5 text-[9px] text-neutral-500 hover:text-white hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors"
+                                              title="Move down in order"
+                                            >
+                                              ▼
+                                            </button>
+                                          </div>
+                                        )}
+
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-[9px] text-neutral-500 font-mono">Order #</span>
+                                          <input
+                                            type="number"
+                                            min={1}
+                                            value={prod.featuredOrder || ""}
+                                            onChange={(e) => {
+                                              const val = e.target.value === "" ? "" : Number(e.target.value);
+                                              updateProduct(prod.id, { featuredOrder: val === "" ? undefined : val });
+                                              if (val !== "") {
+                                                triggerSuccess(`Set "${prod.name}" featured order to #${val}`);
+                                              } else {
+                                                triggerSuccess(`Removed featured order for "${prod.name}"`);
+                                              }
+                                            }}
+                                            placeholder="-"
+                                            className="w-12 bg-neutral-900 border border-neutral-800 rounded px-1.5 py-0.5 text-center text-[10px] text-white outline-none focus:border-neutral-700 font-bold"
+                                          />
+                                        </div>
+                                      </div>
                                     </div>
-                                  )}
-                                  <span className="text-[11px] text-neutral-300 truncate">{prod.name}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 flex-none">
-                                  <span className="text-[9px] text-neutral-500 font-mono">Order #</span>
-                                  <input
-                                    type="number"
-                                    min={1}
-                                    value={prod.featuredOrder || ""}
-                                    onChange={(e) => {
-                                      const val = e.target.value === "" ? "" : Number(e.target.value);
-                                      updateProduct(prod.id, { featuredOrder: val === "" ? undefined : val });
-                                      if (val !== "") {
-                                        triggerSuccess(`Set "${prod.name}" featured order to #${val}`);
-                                      } else {
-                                        triggerSuccess(`Removed featured order for "${prod.name}"`);
-                                      }
-                                    }}
-                                    placeholder="-"
-                                    className="w-12 bg-neutral-900 border border-neutral-800 rounded px-1.5 py-0.5 text-center text-[10px] text-white outline-none focus:border-neutral-700 font-bold"
-                                  />
-                                </div>
-                              </div>
-                            ))}
+                                  );
+                                })
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   );
                 })}
