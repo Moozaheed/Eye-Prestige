@@ -42,7 +42,7 @@ export default function HomePage() {
       <ExploreGrid />
 
       {activeSections.map((key) => (
-        <CategorySection key={key} categoryKey={key} limit={mounted ? itemsPerSection : 10} />
+        <CategorySection key={key} categoryKey={key} limit={mounted ? Math.max(itemsPerSection, 10) : 10} />
       ))}
 
       <BrandStory />
