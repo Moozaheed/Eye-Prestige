@@ -24,6 +24,8 @@ export interface Product {
   stock: number;
   disabled?: boolean;
   featuredOrder?: number;
+  tagText?: string;
+  tagType?: "none" | "discount" | "sale" | "top" | "new" | "custom";
 }
 
 export interface SelectedLens {

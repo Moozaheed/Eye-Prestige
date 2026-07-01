@@ -58,9 +58,9 @@ export const CATEGORIES: Category[] = [
 
 export const PRODUCTS: Product[] = [
   // Sunglasses
-  { id: "s1", name: "Riviera", slug: "riviera", price: 2490, shape: "Aviator", category: "sunglasses", images: [IMG.A], prescriptionRequired: false, featured: true, stock: 25 },
-  { id: "s2", name: "Wayfarer Noir", slug: "wayfarer-noir", price: 1990, shape: "Square", category: "sunglasses", images: [IMG.B], prescriptionRequired: false, featured: true, stock: 18 },
-  { id: "s3", name: "Amber Horizon", slug: "amber-horizon", price: 2290, shape: "Round", category: "sunglasses", images: [IMG.C], prescriptionRequired: false, featured: false, stock: 30 },
+  { id: "s1", name: "Riviera", slug: "riviera", price: 2490, shape: "Aviator", category: "sunglasses", images: [IMG.A], prescriptionRequired: false, featured: true, stock: 25, tagText: "NEW", tagType: "new" },
+  { id: "s2", name: "Wayfarer Noir", slug: "wayfarer-noir", price: 1990, shape: "Square", category: "sunglasses", images: [IMG.B], prescriptionRequired: false, featured: true, stock: 18, tagText: "SALE", tagType: "sale" },
+  { id: "s3", name: "Amber Horizon", slug: "amber-horizon", price: 2290, shape: "Round", category: "sunglasses", images: [IMG.C], prescriptionRequired: false, featured: false, stock: 30, tagText: "20% OFF", tagType: "discount" },
   { id: "s4", name: "Obsidian Frame", slug: "obsidian-frame", price: 1790, shape: "Rectangle", category: "sunglasses", images: [IMG.D], prescriptionRequired: false, featured: false, stock: 12 },
   { id: "s5", name: "Tortoise Classic", slug: "tortoise-classic", price: 2090, shape: "Cat-Eye", category: "sunglasses", images: [IMG.E], prescriptionRequired: false, featured: false, stock: 22 },
 

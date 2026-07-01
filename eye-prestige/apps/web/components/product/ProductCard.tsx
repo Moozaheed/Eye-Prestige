@@ -19,6 +19,20 @@ export default function ProductCard({
   const isCarousel = variant === "carousel";
   const { t } = useI18n();
 
+  const getTagStyles = (type?: string) => {
+    switch (type) {
+      case "discount":
+      case "sale":
+        return "bg-red-50 text-red-600 border border-red-200/50";
+      case "new":
+        return "bg-emerald-50 text-emerald-700 border border-emerald-100";
+      case "top":
+        return "bg-amber-50 text-amber-700 border border-amber-200";
+      default:
+        return "bg-neutral-50 text-neutral-700 border border-neutral-250";
+    }
+  };
+
   return (
     <article
       className={`overflow-hidden rounded-card border border-hairline bg-paper ${
@@ -31,6 +45,15 @@ export default function ProductCard({
             isCarousel ? "aspect-square" : "aspect-[3/4]"
           }`}
         >
+          {product.tagText && product.tagType && product.tagType !== "none" && (
+            <span
+              className={`absolute left-2.5 top-2.5 z-10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getTagStyles(
+                product.tagType
+              )}`}
+            >
+              {product.tagText}
+            </span>
+          )}
           <Image
             src={product.images[0]}
             alt={product.name}

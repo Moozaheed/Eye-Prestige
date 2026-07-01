@@ -56,6 +56,8 @@ export default function AdminProductsPage() {
   const [featured, setFeatured] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [featuredOrder, setFeaturedOrder] = useState<number | "">("");
+  const [tagText, setTagText] = useState("");
+  const [tagType, setTagType] = useState<"none" | "discount" | "sale" | "top" | "new" | "custom">("none");
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -104,6 +106,8 @@ export default function AdminProductsPage() {
     setFeatured(false);
     setDisabled(false);
     setFeaturedOrder("");
+    setTagText("");
+    setTagType("none");
     setModalOpen(true);
   };
 
@@ -126,8 +130,12 @@ export default function AdminProductsPage() {
     setFeatured(p.featured);
     setDisabled(p.disabled || false);
     setFeaturedOrder(p.featuredOrder || "");
+    setTagText(p.tagText || "");
+    setTagType(p.tagType || "none");
     setModalOpen(true);
-  };  const handleSave = (e: React.FormEvent) => {
+  };
+
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const filteredImages = images.filter((img) => img.trim() !== "");
@@ -147,6 +155,8 @@ export default function AdminProductsPage() {
       featured,
       disabled,
       featuredOrder: featuredOrder !== "" ? Number(featuredOrder) : undefined,
+      tagText: tagText.trim() !== "" ? tagText : undefined,
+      tagType: tagType !== "none" ? tagType : undefined,
     };
 
     if (editingProduct) {
@@ -513,7 +523,37 @@ export default function AdminProductsPage() {
                     onChange={(e) => setDisabled(e.target.checked)}
                     className="rounded border-neutral-800 bg-neutral-900 text-white focus:ring-0 focus:ring-offset-0"
                   />
+                  <span className="text-red-400 font-semibold">Disable Product (Hide from storefront)</span>
                 </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5 border-t border-neutral-800 pt-3.5">
+                <div className="space-y-1">
+                  <label className="text-[10.5px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">Badge Tag Text</label>
+                  <input
+                    type="text"
+                    value={tagText}
+                    onChange={(e) => setTagText(e.target.value)}
+                    placeholder="e.g. Sale, New, 20% OFF"
+                    className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-white outline-none focus:border-neutral-700"
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="text-[10.5px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">Badge Style Theme</label>
+                  <select
+                    value={tagType}
+                    onChange={(e) => setTagType(e.target.value as any)}
+                    className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-white outline-none focus:border-neutral-700"
+                  >
+                    <option value="none">No Badge Style</option>
+                    <option value="discount">Red Badge (Discount/Sale)</option>
+                    <option value="sale">Alternative Red (Sale)</option>
+                    <option value="new">Green Badge (New/Fresh)</option>
+                    <option value="top">Amber Badge (Top Seller)</option>
+                    <option value="custom">Minimal Gray (Custom)</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-1 border-t border-neutral-800 pt-3.5">
