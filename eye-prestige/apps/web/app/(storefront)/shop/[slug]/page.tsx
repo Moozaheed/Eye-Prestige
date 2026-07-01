@@ -178,7 +178,19 @@ export default function ProductDetailPage() {
   const related = useMemo(() => {
     if (!product) return [];
     const list = mounted ? storeProducts : PRODUCTS;
-    return list.filter((p) => p.category === product.category && p.id !== product.id);
+    const sameCategory = list.filter((p) => p.category === product.category && p.id !== product.id && !p.disabled);
+
+    if (sameCategory.length >= 10) {
+      return sameCategory;
+    }
+
+    // Append items from other categories to ensure at least 10 items are shown
+    const otherCategories = list.filter((p) => p.category !== product.category && p.id !== product.id && !p.disabled);
+    const shuffledOthers = mounted
+      ? [...otherCategories].sort(() => Math.random() - 0.5)
+      : otherCategories;
+
+    return [...sameCategory, ...shuffledOthers].slice(0, 10);
   }, [product, storeProducts, mounted]);
 
   const framePrice = product.price;
